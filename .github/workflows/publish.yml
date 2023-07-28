@@ -96,3 +96,9 @@ jobs:
           asset_path: dist/${{env.PORTABLE_PACKAGE}}.zip
           asset_name: ${{env.PORTABLE_PACKAGE}}.zip
           asset_content_type: application/zip
+      - name: Deploy Github Pages (ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/bluescribe/
