@@ -60,11 +60,11 @@ jobs:
           cd ..
       - name: upload portable build (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'
-        uses: actions/upload-release-asset@v1
+        uses: shogo82148/actions-upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.tauri.outputs.releaseUploadUrl }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: dist/${{env.PORTABLE_PACKAGE}}.tar.gz
           asset_name: ${{env.PORTABLE_PACKAGE}}.tar.gz
           asset_content_type: application/gzip
@@ -87,18 +87,20 @@ jobs:
           path: ${{env.PORTABLE_PACKAGE}}
       - name: upload portable build (windows only)
         if: matrix.platform == 'windows-latest'
-        uses: actions/upload-release-asset@v1
+        uses: shogo82148/actions-upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.tauri.outputs.releaseUploadUrl }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: dist/${{env.PORTABLE_PACKAGE}}.zip
           asset_name: ${{env.PORTABLE_PACKAGE}}.zip
           asset_content_type: application/zip
+      - name: Build Web Deployment
+        if: matrix.platform == 'ubuntu-22.04'
+        run: npm run build
       - name: Deploy Github Pages (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # The directory looks incorrect because of a side effect of the tauri action
-          publish_dir: ./build/bluescribe/
+          publish_dir: ./build/
