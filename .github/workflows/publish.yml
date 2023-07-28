@@ -20,6 +20,17 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+      - name: install frontend dependencies
+        run: npm install
+      - name: Build Web Deployment
+        if: matrix.platform == 'ubuntu-22.04'
+        run: npm run build
+      - name: Deploy Github Pages (ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/
       - name: get version (ubuntu/mac)
         if: matrix.platform != 'windows-latest'
         run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
@@ -36,8 +47,6 @@ jobs:
       - name: update tauri-cli
         run: |
           cargo install tauri-cli --debug --git https://github.com/tauri-apps/tauri
-      - name: install frontend dependencies
-        run: npm install
       - name: build tauri
         id: tauri
         uses: tauri-apps/tauri-action@v0
@@ -95,12 +104,3 @@ jobs:
           asset_path: dist/${{env.PORTABLE_PACKAGE}}.zip
           asset_name: ${{env.PORTABLE_PACKAGE}}.zip
           asset_content_type: application/zip
-      - name: Build Web Deployment
-        if: matrix.platform == 'ubuntu-22.04'
-        run: npm run build
-      - name: Deploy Github Pages (ubuntu only)
-        if: matrix.platform == 'ubuntu-22.04'
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/
